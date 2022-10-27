@@ -32,7 +32,7 @@
 
  - TBD
 
-## Chapters
+## Chapters  (old)
 
   1. Introduction to Machine Learning and Neural Networks
   2. Convolutional Neural Networks (CNNs)
@@ -42,6 +42,32 @@
   6. Tiny ML
   7. Digital Twins and Simulation for the Cloud
   8. AI in Cloud Operations Management
+
+
+## Chapters (new)
+
+- Introduction to Machine Learning
+  - Fundamentals: Supervised vs Unsupervised Learning, Classification vs Regression, Model Evaluation (Metrics etc.)
+  - Modes
+- Introduction to Deep Learning with Neural Networks
+  - Why deep learning?
+  - Training a first neural network
+  - TensorFlow / Keras
+  - Computer Vision with Convolutional Neural Networks (CNNs)
+-  Generative AI
+   -  Definition of Generative AI
+   -  Text: GitHub Copilot 
+-  AI in Cloud Operations Management
+  
+
+## Research
+
+- Slides in Jupyter [kat]
+- Transformer [cls] -> notebook
+- AI in Cloud Operations Management [cls, kat]
+- Diffusion [cls]
+- Large Language Models & GitHub Copilot [cls]
+- Minimizing Models [kat]
 
 ## Concept (WIP)
 
