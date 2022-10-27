@@ -7,6 +7,8 @@ from . import (
 import seaborn
 import jupyterthemes
 import html
+from pathlib import Path
+
 
 p8_colors = ["#15985C", "#DD841E", "#2A4958", "#2C6048", "#8B683F", "#4598C0", "#41C78A", "#ECA34E", "#19668C", "#62A1C0", "#60C798", "#ECB473"] 
 p8_palette = seaborn.color_palette(p8_colors)
@@ -21,6 +23,18 @@ def setup_plot_style(dark=False):
     seaborn.set_palette(p8_palette)
 
 
+def setup_slide_style(theme="night"):
+    from traitlets.config.manager import BaseJSONConfigManager
+    path = Path.home() / ".jupyter" / "nbconfig"
+    cm = BaseJSONConfigManager(config_dir=str(path))
+    cm.update(
+        "rise",
+        {
+            "theme": theme,
+            "transition": "fade",
+            "start_slideshow_at": "selected",
+         }
+    )
 
 
 
