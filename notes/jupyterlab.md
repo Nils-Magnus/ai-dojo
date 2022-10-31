@@ -29,7 +29,7 @@ Following https://github.com/jupyterhub/jupyterhub
 ```
 sudo npm install -g configurable-http-proxy
 sudo pip3 install jupyterhub
-sudo pip3 install notebook
+sudo pip3 install jupyterlab
 ```
 
 ### 4. Open port
@@ -47,7 +47,7 @@ sudo pip3 install pandas
 etc
 ```
 
-### 6. Starting jupyterhub
+### 7. Starting jupyterhub
 
 ```
 sudo jupyterhub --ip 0.0.0.0
