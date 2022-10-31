@@ -53,3 +53,40 @@ etc
 sudo jupyterhub --ip 0.0.0.0
 ```
 
+### 8. Setup SSL
+
+#### Get domain ready
+
+Point domain A record to IP (https://www.namecheap.com/support/knowledgebase/article.aspx/9837/46/how-to-connect-a-domain-to-a-server-or-hosting/)
+
+#### Open firewall
+
+Need port 80 (for let's encrypt) and 443 (where we will run jupyterhub later)
+
+
+#### install lets-encrypt package  and generate certificat
+
+Following https://certbot.eff.org/instructions?ws=other&os=ubuntufocal
+
+```
+sudo apt-get install snapd
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
+# stop jupyterhub before running this
+sudo certbot certonly --standalone
+```
+
+#### start jupyterhub with ssl
+
+```
+# obviously replace krasch.dev with your own domain-name
+sudo jupyterhub --ip 0.0.0.0 --port 443 --ssl-key /etc/letsencrypt/live/krasch.dev/privkey.pem --ssl-cert /etc/letsencrypt/live/krasch.dev/fullchain.pem
+```
+
+You may need to change permissions, here is a quick hack that gives 
+the relevant files to the user that starts the jupyterlab (in my case user 'dev')
+
+```
+sudo chown dev:dev -R /etc/letsencrypt
+```
