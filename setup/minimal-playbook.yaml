@@ -19,10 +19,36 @@
         state: present
       tags: python
 
-    - name: Install Node Dependencies
+    # - name: Install Node Dependencies
+    #   become: true
+    #   # use 'ansible.builtin.shell' instead of 'command' if shell command contains pipes etc.
+    #   ansible.builtin.shell: "wget -qO- https://deb.nodesource.com/setup_12.x | sudo -E bash -"
+    #   tags: install_node
+
+    - block:
+      - apt:
+          name:
+            - apt-transport-https
+            - gnupg2
+
+      - apt_key:
+          url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+      - apt_repository:
+          repo: "{{ item }}"
+          update_cache: yes
+        loop:
+          - >-
+            deb https://deb.nodesource.com/node_19.x
+            {{ ansible_distribution_release }} main
+          - >-
+            deb-src https://deb.nodesource.com/node_19.x
+            {{ ansible_distribution_release }} main
+
+      - apt:
+          name: nodejs
+
       become: true
-      # use 'ansible.builtin.shell' instead of 'command' if shell command contains pipes etc.
-      ansible.builtin.shell: "wget -qO- https://deb.nodesource.com/setup_12.x | sudo -E bash -"
       tags: install_node
 
     - name: Install node.js
@@ -66,6 +92,6 @@
     # TODO: start jupyterhub
 
     # ansible task: start jupyterhub
-    - name: Start JupyterHub
-      become: true
-      ansible.builtin.shell: jupyterhub --ip 0.0.0.0
+    # - name: Start JupyterHub
+    #   become: true
+    #   ansible.builtin.shell: jupyterhub --ip 0.0.0.0
