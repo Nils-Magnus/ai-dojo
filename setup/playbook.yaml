@@ -19,13 +19,8 @@
         state: present
       tags: python
 
-    # - name: Install Node Dependencies
-    #   become: true
-    #   # use 'ansible.builtin.shell' instead of 'command' if shell command contains pipes etc.
-    #   ansible.builtin.shell: "wget -qO- https://deb.nodesource.com/setup_12.x | sudo -E bash -"
-    #   tags: install_node
-
-    - block:
+    - name: Install node.js
+      block:
       - apt:
           name:
             - apt-transport-https
@@ -53,13 +48,6 @@
 
     - name: Install Jupyterhub
       block:
-      - name: Install node.js
-        become: true
-        apt:
-          name: nodejs
-          state: present
-        tags: install_node
-
       - name: Install configurable-http-proxy
         become: true
         command: "npm install -g configurable-http-proxy"
