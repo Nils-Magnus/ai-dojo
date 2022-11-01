@@ -2,11 +2,12 @@
   hosts: lab_servers
   remote_user: azureuser
   vars:
-    n_users: 15
+    n_users: 3
 
   tasks:
+    # ENVIRONMENT
     - name: Update and upgrade apt
-      become: true
+      become: true  # become root, should replace sudo
       apt:
         update_cache: yes
         upgrade: yes
@@ -14,14 +15,43 @@
     - name: Install Python
       become: true
       apt:
-        name: python3
+        name: python3-pip
         state: present
       tags: python
 
-    - name: Install Node 
+    - name: Install Node Dependencies
       become: true
-      command: "curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs"
+      # use 'ansible.builtin.shell' instead of 'command' if shell command contains pipes etc.
+      ansible.builtin.shell: "wget -qO- https://deb.nodesource.com/setup_12.x | sudo -E bash -"
       tags: install_node
+
+    - name: Install node.js
+      become: true
+      apt:
+        name: nodejs
+        state: present
+      tags: install_node
+
+    - name: Install configurable-http-proxy
+      become: true
+      command: "npm install -g configurable-http-proxy"
+
+    - name: Install JupyterHub
+      become: true
+      command: pip3 install jupyterlab jupyterhub MarkupSafe==2.0.1
+      ignore_errors: true
+      register: install_jupyterhub
+      tags: install_jupyterhub
+
+    # TODO: install Python dependencies
+
+    # - name: Checkout training repository from GitHub
+    #   ansible.builtin.git:
+    #     repo: "https://github.com/clstaudt/ai-training"
+    #     dest: .
+
+
+    # USER MANAGEMENT
 
     - name: Create users
       become: true
@@ -32,4 +62,10 @@
         append: yes
       with_sequence: start=1 end={{ n_users }}
 
+    # START
+    # TODO: start jupyterhub
 
+    # ansible task: start jupyterhub
+    - name: Start JupyterHub
+      become: true
+      ansible.builtin.shell: jupyterhub --ip 0.0.0.0
