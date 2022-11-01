@@ -1,4 +1,4 @@
-# Unordered list of stuff
+# AI in IT Operations: Unordered list of stuff 
 
 https://research.redhat.com/wp-content/uploads/2022/09/15-AI-for-Cloud-Ops.pdf
 * automatically identify security risks / performance issues in notebooks
@@ -28,3 +28,16 @@ der artikel war gar nicht mal so schlecht (also für einen werbeartikel)
 * quite literally a survey, a catalog of the methods used
 * some good definitions
 * however, not very descriptive of actual use cases  
+
+
+[Anomaly Detection from Log Files Using Unsupervised Deep Learning](https://www.researchgate.net/publication/343621027_Anomaly_Detection_from_Log_Files_Using_Unsupervised_Deep_Learning)
+* _a two part deep autoencoder model with LSTM units that requires no hand-crafted features, no preprocessing of data as it works on raw text and outputs an anomaly score for each log entry._
+
+[LogBERT: log file anomaly detection using BERT: An Explainer](https://medium.com/infinstor/logbert-log-file-anomaly-detection-using-bert-an-explainer-db20bfd2f91f)
+* _LogBERT uses a novel approach of creating a language model for log sequences (using BERT) using normal log sequences. The training is done by masking random log keys in the log sequence and training the model to predict the masked log keys correctly. The training phase uses two loss functions described above to learn the model weights.
+During prediction, LogBERT will be able to predict masked log keys in a log sequence. if the actual(true) log key (which was masked) is different from the predicted log key, and if the number of mismatches exceeds the hyperparameter r, then the log sequence is marked as an anomalous log sequence._
+* this could be nice to include because it can be linked to the AI coding assistants chapter via the language models concept
+
+
+[log-anomaly-detector](https://github.com/AICoE/log-anomaly-detector)
+* _It can connect to streaming sources and produce predictions of abnormal log lines. Internally it uses unsupervised machine learning. We incorporate a number of machine learning models to achieve this result. In addition it includes a human in the loop feedback system._
