@@ -2,70 +2,120 @@
   hosts: lab_servers
   remote_user: azureuser
   vars:
-    n_users: 15
+    n_users: 3
+
+  tasks:
+    # ENVIRONMENT
+    - name: Update and upgrade apt
+      become: true  # become root, should replace sudo
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install Python
+      become: true
+      apt:
+        name: python3-pip
+        state: present
+      tags: python
+
+    # - name: Install Node Dependencies
+    #   become: true
+    #   # use 'ansible.builtin.shell' instead of 'command' if shell command contains pipes etc.
+    #   ansible.builtin.shell: "wget -qO- https://deb.nodesource.com/setup_12.x | sudo -E bash -"
+    #   tags: install_node
+
+    - block:
+      - apt:
+          name:
+            - apt-transport-https
+            - gnupg2
+
+      - apt_key:
+          url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+      - apt_repository:
+          repo: "{{ item }}"
+          update_cache: yes
+        loop:
+          - >-
+            deb https://deb.nodesource.com/node_19.x
+            {{ ansible_distribution_release }} main
+          - >-
+            deb-src https://deb.nodesource.com/node_19.x
+            {{ ansible_distribution_release }} main
+
+      - apt:
+          name: nodejs
+
+      become: true
+      tags: install_node
+
+    - name: Install Jupyterhub
+      block:
+      - name: Install node.js
+        become: true
+        apt:
+          name: nodejs
+          state: present
+        tags: install_node
+
+      - name: Install configurable-http-proxy
+        become: true
+        command: "npm install -g configurable-http-proxy"
+
+      - name: Install JupyterHub Python package
+        become: true
+        command: pip3 install jupyterlab jupyterhub MarkupSafe==2.0.1
+        ignore_errors: true
+        register: install_jupyterhub
+        tags: install_jupyterhub
+
+    # TODO: install Python dependencies
+
+    # - name: Checkout training repository from GitHub
+    #   ansible.builtin.git:
+    #     repo: "https://github.com/clstaudt/ai-training"
+    #     dest: .
 
 
+    # SETUP SSL
+    - name: Setup SSL
+      block:
+      - name: Install snapd
+        become: true
+        apt:
+          name: snapd
+          state: present
+      - name: Install certbot
+        become: true
+        command: snap install --classic certbot
+      - name: Symlink certbot
+        become: true
+        file:
+          src: /snap/bin/certbot
+          dest: /usr/bin/certbot
+          state: link
 
-tasks:
-  - name: Update and upgrade apt
-    become: true
-    apt:
-      update_cache: yes
-      upgrade: safe
+    # USER MANAGEMENT
 
-  - name: Install Python
-    become: true
-    apt:
-      name: python
-      state: present
-    tags: python
+    - name: Create users
+      become: true
+      user:
+        name: "user{{ item }}"
+        password: "user{{ item }}"
+        groups: sudo
+        append: yes
+      with_sequence: start=1 end={{ n_users }}
 
-  - install_node:
-    name: Install Node
-    command: "curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs"
-    sudo: true
-    ignore_errors: true
-    register: install_node
-    tags: install_node
+    # START
+    # TODO: probably Ansible is not made for starting processes, so this should go into a script
 
-  - install_node_dependencies:
-    name: Install Node Dependencies
-    command: sudo npm install -g configurable-http-proxy
-    sudo: true
-    ignore_errors: true
-    register: install_node_dependencies
-    tags: install_node_dependencies
+    # ansible task: start jupyterhub
+    # - name: Start certbot 
+    #   become: true
+    #   shell: certbot certonly --standalone
 
-  - install_jupyterhub:
-    name: Install JupyterHub
-    command: pip install jupyterlab jupyterhub
-    sudo: true
-    ignore_errors: true
-    register: install_jupyterhub
-    tags: install_jupyterhub
-
-  - create_users:
-    name: Create users
-    user:
-      name: "user{{ item }}"
-      password: "user{{ item }}"
-      groups: sudo
-      append: yes
-    with_sequence: start=1 end={{ n_users }}
-
-  - start_jupyterhub:
-    name: Start JupyterHub
-    command: jupyterhub --ip 0.0.0.0 --port 443 --ssl-key {{ ssl_key_path }} --ssl-cert {{ ssl_cert_path }}
-
-  # ansible task: install package snapd
-  - name: Install snapd
-    apt:
-      name: snapd
-      state: present
-      update_cache: yes
-
-  - name: Install certbot
-    snap:
-      name: certbot
-      classic: yes
-
+    # - name: Start JupyterHub
+    #   become: true
+    #   ansible.builtin.shell: jupyterhub --ip 0.0.0.0 --port 443 --ssl-key {{ ssl_key }} --ssl-cert {{ssl_cert}} 
