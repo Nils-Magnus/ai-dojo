@@ -4,34 +4,25 @@
   vars:
     n_users: 15
 
+
+
 tasks:
-  - linux_update:
-    name: Update Linux
-    command: sudo apt-get update
-    sudo: true
-    ignore_errors: true
-    register: linux_update
-    tags: linux_update
+  - name: Update and upgrade apt
+    become: true
+    apt:
+      update_cache: yes
+      upgrade: safe
 
-  - linux_upgrade:
-    name: Upgrade Linux
-    command: sudo apt-get upgrade -y
-    sudo: true
-    ignore_errors: true
-    register: linux_upgrade
-    tags: linux_upgrade
-
-  - install_python:
-    name: Install Python
-    command: sudo apt-get install python -y
-    sudo: true
-    ignore_errors: true
-    register: install_python
-    tags: install_python
+  - name: Install Python
+    become: true
+    apt:
+      name: python
+      state: present
+    tags: python
 
   - install_node:
     name: Install Node
-    command: curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs
+    command: "curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs"
     sudo: true
     ignore_errors: true
     register: install_node
@@ -66,11 +57,15 @@ tasks:
     name: Start JupyterHub
     command: jupyterhub --ip 0.0.0.0 --port 443 --ssl-key {{ ssl_key_path }} --ssl-cert {{ ssl_cert_path }}
 
-  # ansible task: install lets-encrypt package  and generate certificate
-  - name: Install lets-encrypt package
+  # ansible task: install package snapd
+  - name: Install snapd
     apt:
-      name: letsencrypt
+      name: snapd
       state: present
-    become: true
+      update_cache: yes
 
-  #
+  - name: Install certbot
+    snap:
+      name: certbot
+      classic: yes
+

@@ -1,0 +1,35 @@
+- name: Setup Lab Environment
+  hosts: lab_servers
+  remote_user: azureuser
+  vars:
+    n_users: 15
+
+  tasks:
+    - name: Update and upgrade apt
+      become: true
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install Python
+      become: true
+      apt:
+        name: python3
+        state: present
+      tags: python
+
+    - name: Install Node 
+      become: true
+      command: "curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash - && sudo apt-get install -y nodejs"
+      tags: install_node
+
+    - name: Create users
+      become: true
+      user:
+        name: "user{{ item }}"
+        password: "user{{ item }}"
+        groups: sudo
+        append: yes
+      with_sequence: start=1 end={{ n_users }}
+
+
