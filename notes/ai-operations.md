@@ -41,3 +41,4 @@ During prediction, LogBERT will be able to predict masked log keys in a log sequ
 
 [log-anomaly-detector](https://github.com/AICoE/log-anomaly-detector)
 * _It can connect to streaming sources and produce predictions of abnormal log lines. Internally it uses unsupervised machine learning. We incorporate a number of machine learning models to achieve this result. In addition it includes a human in the loop feedback system._
+* ⛔️ the codebase seems out of date and not well maintained, I wasn't able to get this to run [CS]
