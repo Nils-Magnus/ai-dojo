@@ -1,12 +1,12 @@
 from distutils.core import setup
 
 setup(
-    name='data_science_learning_paths',
-    version=0.3,
+    name='ai_dojo',
+    version=1.0,
     description='',
     author='Christian Staudt',
     url='http://clstaudt.me',
-    packages=['data_science_learning_paths'],
+    packages=['ai_dojo'],
     install_requires=[
     ]
 )
