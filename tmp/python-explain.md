@@ -8,4 +8,3 @@ def remove_common_prefix(data: pandas.DataFrame, col: str, prefix: str, ws_prefi
         data[col] = " " + data[col] 
     return data
 
-# Explanation of what the code does
