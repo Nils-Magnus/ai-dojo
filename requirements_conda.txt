@@ -11,3 +11,4 @@ seaborn
 shap
 tensorflow
 tqdm
+sktime
