@@ -87,14 +87,36 @@
 
     # USER MANAGEMENT
 
+    # an ansible task to create n users. The users are named user1, user2, etc. The password is the hashed version of the username.
     - name: Create users
       become: true
       user:
         name: "user{{ item }}"
-        password: "user{{ item }}"
-        groups: sudo
+        password: "{{ 'do=path'|password_hash('sha512') }}"
+        groups: sudo, users
         append: yes
+      loop: "{{ range(1, n_users|int + 1)|list }}"
+
+    # TRAINING MATERIAL
+
+    - name: Checkout training repository from GitHub
+      become: true
+      ansible.builtin.git:
+        repo: "https://github.com/clstaudt/mock-repo"
+        dest: /home/user{{ item }}/dojo
       with_sequence: start=1 end={{ n_users }}
+
+    # an ansible task to change the owner of the training material to the user
+    - name: Change owner of training material
+      become: true
+      file:
+        path: /home/user{{ item }}/dojo
+        owner: user{{ item }}
+        group: users
+        recurse: yes
+      loop: "{{ range(1, n_users|int + 1)|list }}"
+
+      
 
     # START
     # TODO: probably Ansible is not made for starting processes, so this should go into a script
