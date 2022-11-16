@@ -1,8 +1,7 @@
 - name: Setup Lab Environment
   hosts: lab_servers
   remote_user: azureuser
-  vars:
-    n_users: 3
+
 
   tasks:
     # ENVIRONMENT
@@ -92,9 +91,29 @@
       become: true
       user:
         name: "user{{ item }}"
-        password: "{{ 'do=path'|password_hash('sha512') }}"
+        password: "{{ 'dojo' |password_hash('sha512') }}"
         groups: sudo, users
         append: yes
+      loop: "{{ range(1, n_users|int + 1)|list }}"
+
+
+    # an ansible task to create a shared directory and make it writable for all users in the group users
+    - name: Create shared directory
+      become: true
+      file:
+        path: /home/shared
+        state: directory
+        owner: root
+        group: users
+        mode: 0775
+
+    # an ansible task that symlinks the shared directory to the home directory of all users
+    - name: Symlink shared directory
+      become: true
+      file:
+        src: /home/shared
+        dest: /home/user{{ item }}/shared
+        state: link
       loop: "{{ range(1, n_users|int + 1)|list }}"
 
     # TRAINING MATERIAL
@@ -104,6 +123,15 @@
       ansible.builtin.git:
         repo: "https://github.com/clstaudt/mock-repo"
         dest: /home/user{{ item }}/dojo
+      with_sequence: start=1 end={{ n_users }}
+
+    # an ansible task to install the Python requirements from the requirements.txt file in the folder /home/user1/dojo
+    - name: Install Python requirements
+      become: true
+      pip:
+        requirements: /home/user{{ item }}/dojo/requirements.txt
+        virtualenv: /home/user{{ item }}/dojo/venv
+        virtualenv_command: python3 -m venv
       with_sequence: start=1 end={{ n_users }}
 
     # an ansible task to change the owner of the training material to the user
