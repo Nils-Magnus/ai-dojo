@@ -125,15 +125,6 @@
         dest: /home/user{{ item }}/dojo
       with_sequence: start=1 end={{ n_users }}
 
-    # an ansible task to install the Python requirements from the requirements.txt file in the folder /home/user1/dojo
-    - name: Install Python requirements
-      become: true
-      pip:
-        requirements: /home/user{{ item }}/dojo/requirements.txt
-        virtualenv: /home/user{{ item }}/dojo/venv
-        virtualenv_command: python3 -m venv
-      with_sequence: start=1 end={{ n_users }}
-
     # an ansible task to change the owner of the training material to the user
     - name: Change owner of training material
       become: true
@@ -144,7 +135,16 @@
         recurse: yes
       loop: "{{ range(1, n_users|int + 1)|list }}"
 
-      
+
+    # an ansible task to install the Python requirements from the requirements.txt file in the folder /home/user1/dojo
+    - name: Install Python requirements
+      become: true
+      pip:
+        requirements: /home/user1/dojo/requirements.txt
+      #   virtualenv: /home/user{{ item }}/dojo/venv
+      #   virtualenv_command: python3 -m venv
+      # with_sequence: start=1 end={{ n_users }}
+  
 
     # START
     # TODO: probably Ansible is not made for starting processes, so this should go into a script
