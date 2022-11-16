@@ -121,7 +121,7 @@
     - name: Checkout training repository from GitHub
       become: true
       ansible.builtin.git:
-        repo: "https://github.com/clstaudt/mock-repo"
+        repo: "https://github.com/clstaudt/ai-training"
         dest: /home/user{{ item }}/dojo
       with_sequence: start=1 end={{ n_users }}
 

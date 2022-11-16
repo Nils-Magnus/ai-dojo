@@ -12,4 +12,3 @@ shap
 tensorflow
 tqdm
 sktime
-jupyterlab_legos_ui
