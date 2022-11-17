@@ -58,13 +58,6 @@
         register: install_jupyterhub
         tags: install_jupyterhub
 
-    # TODO: install Python dependencies
-
-    # - name: Checkout training repository from GitHub
-    #   ansible.builtin.git:
-    #     repo: "https://github.com/clstaudt/ai-training"
-    #     dest: .
-
 
     # SETUP SSL
     - name: Setup SSL
