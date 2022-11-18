@@ -84,11 +84,19 @@
       become: true
       user:
         name: "user{{ item }}"
-        password: "{{ 'dojo' |password_hash('sha512') }}"
+        password: "{{ user_password |password_hash('sha512') }}"
         groups: sudo, users
         append: yes
       loop: "{{ range(1, n_users|int + 1)|list }}"
 
+    - name: Create trainers
+      become: true
+      user:
+        name: "trainer{{ item }}"
+        password: "{{ trainer_password |password_hash('sha512') }}"
+        groups: sudo, users
+        append: yes
+      loop: "{{ range(1, n_trainers|int + 1)|list }}"
 
     # an ansible task to create a shared directory and make it writable for all users in the group users
     - name: Create shared directory
@@ -109,7 +117,16 @@
         state: link
       loop: "{{ range(1, n_users|int + 1)|list }}"
 
-    # TRAINING MATERIAL
+    # symlink shared directory for trainers
+    - name: Symlink shared directory for trainers
+      become: true
+      file:
+        src: /home/shared
+        dest: /home/trainer{{ item }}/shared
+        state: link
+      loop: "{{ range(1, n_trainers|int + 1)|list }}"
+
+
 
     - name: Checkout training repository from GitHub
       become: true
@@ -117,6 +134,14 @@
         repo: "https://github.com/clstaudt/ai-training"
         dest: /home/user{{ item }}/dojo
       with_sequence: start=1 end={{ n_users }}
+
+    # checkout repository for trainers
+    - name: Checkout training repository for trainers
+      become: true
+      ansible.builtin.git:
+        repo: "https://github.com/clstaudt/ai-training"
+        dest: /home/trainer{{ item }}/dojo
+      with_sequence: start=1 end={{ n_trainers }}
 
     # an ansible task to change the owner of the training material to the user
     - name: Change owner of training material
@@ -128,16 +153,49 @@
         recurse: yes
       loop: "{{ range(1, n_users|int + 1)|list }}"
 
+    # change owner of training material for trainers
+    - name: Change owner of training material for trainers
+      become: true
+      file:
+        path: /home/trainer{{ item }}/dojo
+        owner: trainer{{ item }}
+        group: trainers
+        recurse: yes
+      loop: "{{ range(1, n_trainers|int + 1)|list }}"
+
 
     # an ansible task to install the Python requirements from the requirements.txt file in the folder /home/user1/dojo
     - name: Install Python requirements
       become: true
       pip:
-        requirements: /home/user1/dojo/requirements.txt
-      #   virtualenv: /home/user{{ item }}/dojo/venv
-      #   virtualenv_command: python3 -m venv
-      # with_sequence: start=1 end={{ n_users }}
-  
+        requirements: /home/trainer1/dojo/requirements.txt
+
+
+
+    # an ansible task that installs a local Python module located at /home/user1/dojo/library in development mode
+    - name: Install Python module
+      become: true
+      pip:
+        name: /home/trainer1/dojo/library
+        editable: yes
+
+
+    ## SSL CERTIFICATE
+    # an ansible task to copy the SSL certificate and key from the location supplied as a variable to /etc/letsencrypt/live/ai-dojo.dev
+    - name: Copy SSL certificate
+      become: true
+      copy:
+        src: "{{ ssl_dir }}/{{ item }}"
+        dest: /etc/letsencrypt/live/ai-dojo.dev/{{ item }}
+        owner: root
+        group: root
+        mode: 0644
+      loop:
+        - cert.pem
+        - chain.pem
+        - fullchain.pem
+        - privkey.pem
+        - README
 
     # START
     # TODO: probably Ansible is not made for starting processes, so this should go into a script
@@ -150,3 +208,5 @@
     # - name: Start JupyterHub
     #   become: true
     #   ansible.builtin.shell: jupyterhub --ip 0.0.0.0 --port 443 --ssl-key {{ ssl_key }} --ssl-cert {{ssl_cert}} 
+
+
