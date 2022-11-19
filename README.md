@@ -4,7 +4,9 @@
   <p><b>Custom training material on artificial intelligence</b></p>
  <a href="notebooks/dojo.ipynb"><b>Table of Contents</b></a>
 
+<p>
 <img src="notebooks/graphics/artwork/ai-dojo.png" width=300 />
+</p>
 
 
 </div>
