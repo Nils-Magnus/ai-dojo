@@ -131,7 +131,7 @@
     - name: Checkout training repository from GitHub
       become: true
       ansible.builtin.git:
-        repo: "https://github.com/clstaudt/ai-training"
+        repo: "https://github.com/clstaudt/ai-dojo"
         dest: /home/user{{ item }}/dojo
       with_sequence: start=1 end={{ n_users }}
 
@@ -139,7 +139,7 @@
     - name: Checkout training repository for trainers
       become: true
       ansible.builtin.git:
-        repo: "https://github.com/clstaudt/ai-training"
+        repo: "https://github.com/clstaudt/ai-dojo"
         dest: /home/trainer{{ item }}/dojo
       with_sequence: start=1 end={{ n_trainers }}
 
@@ -181,12 +181,11 @@
 
 
     ## SSL CERTIFICATE
-    # an ansible task to copy the SSL certificate and key from the location supplied as a variable to /etc/letsencrypt/live/ai-dojo.dev
     - name: Copy SSL certificate
       become: true
       copy:
         src: "{{ ssl_dir }}/{{ item }}"
-        dest: /etc/letsencrypt/live/ai-dojo.dev/{{ item }}
+        dest: /etc/letsencrypt/live/{{ domain_name }}/{{ item }}
         owner: root
         group: root
         mode: 0644
