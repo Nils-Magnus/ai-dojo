@@ -1,5 +1,6 @@
 jupyterlab
 jupyterthemes
+jupyterlab_legos_ui
 lime
 matplotlib
 nbstripout
