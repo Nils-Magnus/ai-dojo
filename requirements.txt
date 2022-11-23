@@ -13,3 +13,4 @@ shap
 tensorflow
 tqdm
 sktime
+markupsafe==2.0.1
